@@ -176,6 +176,8 @@ class _VideoBottomViewState extends State<VideoBottomView> {
       visible: _playerType == SuperPlayerType.VOD,
       maintainSize: true,
       maintainAnimation: true,
+      maintainState: true,
+      maintainSemantics: true,
       child: Expanded(
         child: VideoSlider(
           key: _sliderView,
