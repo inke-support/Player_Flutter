@@ -172,13 +172,13 @@ class _VideoBottomViewState extends State<VideoBottomView> {
   }
 
   Widget _getSlider() {
-    return Visibility(
-      visible: _playerType == SuperPlayerType.VOD,
-      maintainSize: true,
-      maintainAnimation: true,
-      maintainState: true,
-      maintainSemantics: true,
-      child: Expanded(
+    return Expanded(
+      child: Visibility(
+        visible: _playerType == SuperPlayerType.VOD,
+        maintainSize: true,
+        maintainAnimation: true,
+        maintainState: true,
+        maintainSemantics: true,
         child: VideoSlider(
           key: _sliderView,
           min: 0,
