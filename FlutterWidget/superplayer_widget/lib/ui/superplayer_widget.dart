@@ -480,7 +480,7 @@ class SuperPlayerViewState extends State<SuperPlayerView> with WidgetsBindingObs
       children: [
         _getPlayer(),
         _getTitleArea(),
-        _getPipEnterView(),
+        // _getPipEnterView(),
         _getImageSpriteView(),
         _getSubtitleDisplayView(),
         _getCover(),
