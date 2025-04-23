@@ -104,7 +104,7 @@ class _VideoBottomViewState extends State<VideoBottomView> {
                     style: const TextStyle(fontSize: 12, color: Colors.white),
                   ),
                 ),
-                // _getSlider(),
+                _getSlider(),
                 Text(
                   _buildTextString(_videoDuration),
                   style: const TextStyle(fontSize: 12, color: Colors.white),
@@ -174,7 +174,7 @@ class _VideoBottomViewState extends State<VideoBottomView> {
   Widget _getSlider() {
     return Expanded(
       child: Visibility(
-        visible: _playerType == SuperPlayerType.VOD,
+        visible: false,
         maintainSize: true,
         maintainAnimation: true,
         maintainState: true,
