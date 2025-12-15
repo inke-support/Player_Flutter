@@ -48,7 +48,7 @@ class SuperPlayerController {
   bool _needToResume = false;
   bool _needToPause = false;
   bool callResume = false;
-  bool _isMultiBitrateStream = false; // the flag playing multi-bitrate URLs flag
+  bool _isMultiBitrateStream = true; // the flag playing multi-bitrate URLs flag
   bool _changeHWAcceleration = false; // the flag before receiving the first keyframe after switching to hardware decoding
   bool _isOpenHWAcceleration = true;
   int _playerUIStatus = SuperPlayerUIStatus.WINDOW_MODE;
@@ -145,7 +145,6 @@ class SuperPlayerController {
           }
           videoDuration = await _vodPlayerController.getDuration();
           currentDuration = await _vodPlayerController.getCurrentPlaybackTime();
-          List<TXTrackInfo> aaa = await _vodPlayerController.getAudioTrackInfo();
           _onSelectTrackInfoWhenPrepare();
           break;
         case TXVodPlayEvent.PLAY_EVT_PLAY_LOADING: // PLAY_EVT_PLAY_LOADING
@@ -364,9 +363,9 @@ class SuperPlayerController {
     callResume = false;
     // Priority use URL to play
     if (videoModel.videoURL.isNotEmpty) {
-      _playWithUrl(videoModel);
+      await _playWithUrl(videoModel);
     } else if (videoModel.videoId != null && (videoModel.videoId!.fileId.isNotEmpty)) {
-      _playWithField(videoModel);
+      await _playWithField(videoModel);
     }
   }
 
@@ -374,6 +373,14 @@ class SuperPlayerController {
     _setVodListener();
     await _vodPlayerController.setToken(null);
     _updatePlayerType(SuperPlayerType.VOD);
+    await _vodPlayerController.setStartTime(startPos);
+    if (_playAction == SuperPlayerModel.PLAY_ACTION_PRELOAD) {
+      await _vodPlayerController.setAutoPlay(isAutoPlay: false);
+      _playAction = SuperPlayerModel.PLAY_ACTION_AUTO_PLAY;
+    } else if (_playAction == SuperPlayerModel.PLAY_ACTION_AUTO_PLAY ||
+        _playAction == SuperPlayerModel.PLAY_ACTION_MANUAL_PLAY) {
+      await _vodPlayerController.setAutoPlay(isAutoPlay: true);
+    }
     if (_curViewId >=0) {
       setPlayerView(_curViewId);
     }
@@ -427,6 +434,11 @@ class SuperPlayerController {
           _vodPlayerController.deselectTrack(tempInfo.trackIndex);
         }
       }
+      // clear deselect subtitle
+      if (trackInfo.trackIndex == SPConstants.VALID_SUBTITLE_INDEX) {
+        currentSubtitleData = null;
+        _observer?.onSubtitleData(currentSubtitleData);
+      }
     }
   }
 
@@ -434,7 +446,7 @@ class SuperPlayerController {
     return await _vodPlayerController.getPlayableDuration();
   }
 
-  void _playWithUrl(SuperPlayerModel model) {
+  Future<void> _playWithUrl(SuperPlayerModel model) async {
     List<VideoQuality> videoQualities = [];
     VideoQuality? defaultVideoQuality;
     String? videoUrl;
@@ -536,7 +548,7 @@ class SuperPlayerController {
 
   /// Play live streaming
   /// 播放直播URL
-  void _playLiveURL(String url) async {
+  Future<void> _playLiveURL(String url) async {
     _currentPlayUrl = url;
     _setLiveListener();
     if (_curViewId >= 0) {
@@ -575,6 +587,8 @@ class SuperPlayerController {
     playerState = state;
     print("_updatePlayerState:$state");
     switch (state) {
+      case SuperPlayerState.START:
+        break;
       case SuperPlayerState.INIT:
         _observer?.onPlayPrepare();
         break;
@@ -913,26 +927,26 @@ class FullScreenController {
 
   FullScreenController();
 
-  void switchToOrientation(int orientationDirection) {
+  Future<void> switchToOrientation(int orientationDirection) async {
     if (currentOrientation != orientationDirection) {
       forceSwitchOrientation(orientationDirection);
     }
   }
 
-  void forceSwitchOrientation(int orientationDirection) {
+  Future<void> forceSwitchOrientation(int orientationDirection) async {
     currentOrientation = orientationDirection;
     if (orientationDirection == TXVodPlayEvent.ORIENTATION_PORTRAIT_UP) {
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge, overlays: SystemUiOverlay.values);
+      await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
       exitFullScreen();
-      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values);
     } else if (orientationDirection == TXVodPlayEvent.ORIENTATION_LANDSCAPE_RIGHT) {
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      await SystemChrome.setPreferredOrientations(Platform.isIOS ? [DeviceOrientation.landscapeRight] : [DeviceOrientation.landscapeLeft]);
       enterFullScreen();
-      SystemChrome.setPreferredOrientations(Platform.isIOS ? [DeviceOrientation.landscapeRight] : [DeviceOrientation.landscapeLeft]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     } else if (orientationDirection == TXVodPlayEvent.ORIENTATION_PORTRAIT_DOWN) {
     } else if (orientationDirection == TXVodPlayEvent.ORIENTATION_LANDSCAPE_LEFT) {
-      SystemChrome.setPreferredOrientations(Platform.isIOS ? [DeviceOrientation.landscapeLeft] : [DeviceOrientation.landscapeRight]);
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      await SystemChrome.setPreferredOrientations(Platform.isIOS ? [DeviceOrientation.landscapeLeft] : [DeviceOrientation.landscapeRight]);
       enterFullScreen();
     }
   }

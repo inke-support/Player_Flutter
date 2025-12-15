@@ -7,7 +7,7 @@ class VideoBottomView extends StatefulWidget {
   final BottomViewController _controller;
 
   const VideoBottomView(this._playerController, this._controller, Key key)
-      : super(key: key);
+    : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -46,7 +46,8 @@ class _VideoBottomViewState extends State<VideoBottomView> {
 
     _isPlayMode =
         (widget._playerController.playerState == SuperPlayerState.PLAYING);
-    bool isFullScreen = widget._playerController._playerUIStatus ==
+    bool isFullScreen =
+        widget._playerController._playerUIStatus ==
         SuperPlayerUIStatus.FULLSCREEN_MODE;
     _showFullScreenBtn = !isFullScreen;
     _isShowQuality = isFullScreen;
@@ -68,33 +69,44 @@ class _VideoBottomViewState extends State<VideoBottomView> {
         children: [
           Center(
             child: Visibility(
-                visible: null != showedKeyFrameInfo,
-                child: null != showedKeyFrameInfo
-                    ? Container(
-                        decoration: const BoxDecoration(
-                            color: Color(ColorResource.COLOR_TRANS_BLACK),
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(50))),
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 10, top: 5, bottom: 5),
-                        child: Text(
-                          "${Utils.formattedTime(showedKeyFrameInfo!.time)} ${showedKeyFrameInfo!.content}",
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 14),
-                          softWrap: true,
+              visible: null != showedKeyFrameInfo,
+              child: null != showedKeyFrameInfo
+                  ? Container(
+                      decoration: const BoxDecoration(
+                        color: Color(ColorResource.COLOR_TRANS_BLACK),
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                      ),
+                      padding: const EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                        top: 5,
+                        bottom: 5,
+                      ),
+                      child: Text(
+                        "${Utils.formattedTime(showedKeyFrameInfo!.time)} ${showedKeyFrameInfo!.content}",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
                         ),
-                      )
-                    : const SizedBox()),
+                        softWrap: true,
+                      ),
+                    )
+                  : const SizedBox(),
+            ),
           ),
           Container(
             decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage("images/superplayer_bottom_shadow.png",
-                        package: PlayerConstants.PKG_NAME),
-                    fit: BoxFit.fill)),
+              image: DecorationImage(
+                image: AssetImage(
+                  "images/superplayer_bottom_shadow.png",
+                  package: PlayerConstants.PKG_NAME,
+                ),
+                fit: BoxFit.fill,
+              ),
+            ),
             padding: _showFullScreenBtn
                 ? const EdgeInsets.only(left: 6, right: 6, bottom: 3)
-                : const EdgeInsets.only(left: 20, right: 20, bottom: 13),
+                : const EdgeInsets.only(left: 30, right: 30, bottom: 20),
             child: Row(
               children: [
                 _getPlayImage(),
@@ -113,7 +125,7 @@ class _VideoBottomViewState extends State<VideoBottomView> {
                 _getQualityButton(),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -123,35 +135,41 @@ class _VideoBottomViewState extends State<VideoBottomView> {
     return Visibility(
       visible: _isShowQuality,
       child: InkWell(
-          onTap: onTapQualityView,
-          child: Container(
-            padding: const EdgeInsets.only(left: 5, right: 10),
-            child: _currentQuality != null
-                ? Text(
-                    VideoQualityUtils.transformToQualityName(
-                        _currentQuality!.title),
-                    style: const TextStyle(fontSize: 12, color: Colors.white),
-                  )
-                : Container(),
-          )),
+        onTap: onTapQualityView,
+        child: Container(
+          padding: const EdgeInsets.only(left: 5, right: 10),
+          child: _currentQuality != null
+              ? Text(
+                  VideoQualityUtils.transformToQualityName(
+                    _currentQuality!.title,
+                  ),
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                )
+              : Container(),
+        ),
+      ),
     );
   }
 
   Widget _getPlayImage() {
-    return InkWell(
+    return GestureDetector(
       onTap: onTapStartOrPause,
       child: _isPlayMode
           ? const Image(
-              width: 30,
-              height: 30,
-              image: AssetImage("images/superplayer_ic_vod_pause_normal.png",
-                  package: PlayerConstants.PKG_NAME),
+              width: 35,
+              height: 35,
+              image: AssetImage(
+                "images/superplayer_ic_vod_pause_normal.png",
+                package: PlayerConstants.PKG_NAME,
+              ),
             )
           : const Image(
-              width: 30,
-              height: 30,
-              image: AssetImage("images/superplayer_ic_vod_play_normal.png",
-                  package: PlayerConstants.PKG_NAME),
+              width: 35,
+              height: 35,
+              image: AssetImage(
+                "images/superplayer_ic_vod_play_normal.png",
+                package: PlayerConstants.PKG_NAME,
+              ),
             ),
     );
   }
@@ -164,8 +182,10 @@ class _VideoBottomViewState extends State<VideoBottomView> {
         child: const Image(
           width: 30,
           height: 30,
-          image: AssetImage("images/superplayer_ic_vod_fullscreen.png",
-              package: PlayerConstants.PKG_NAME),
+          image: AssetImage(
+            "images/superplayer_ic_vod_fullscreen.png",
+            package: PlayerConstants.PKG_NAME,
+          ),
         ),
       ),
     );
@@ -212,8 +232,10 @@ class _VideoBottomViewState extends State<VideoBottomView> {
               _isOnDraging = false;
               _currentDuration = value * _videoDuration;
               widget._playerController.seek(_currentDuration);
-              LogUtils.d(TAG,
-                  "_currentDuration:$_currentDuration,_videoDuration:$_videoDuration");
+              LogUtils.d(
+                TAG,
+                "_currentDuration:$_currentDuration,_videoDuration:$_videoDuration",
+              );
               widget._controller.onSeekEnd();
             });
           },
@@ -235,7 +257,10 @@ class _VideoBottomViewState extends State<VideoBottomView> {
   }
 
   void updateDuration(
-      double duration, double videoDuration, double bufferedDration) {
+    double duration,
+    double videoDuration,
+    double bufferedDration,
+  ) {
     if (_isOnDraging) {
       return;
     }
@@ -318,6 +343,11 @@ class BottomViewController {
   Function(double value) onSeekChanged;
   Function onSeekEnd;
 
-  BottomViewController(this.onTapStart, this.onTapFullScreen, this.onTapQuality,
-      this.onSeekChanged, this.onSeekEnd);
+  BottomViewController(
+    this.onTapStart,
+    this.onTapFullScreen,
+    this.onTapQuality,
+    this.onSeekChanged,
+    this.onSeekEnd,
+  );
 }

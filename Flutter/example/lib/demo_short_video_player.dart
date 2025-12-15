@@ -22,13 +22,17 @@ class _DemoShortVideoPlayerState extends State<DemoShortVideoPlayer> with Widget
     super.initState();
     // stop pip window if exists
     TXPipController.instance.exitAndReleaseCurrentPip();
-    ShortVideoDataLoader loader = ShortVideoDataLoader();
+    _loadData();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  void _loadData() async {
+    final ShortVideoDataLoader loader = ShortVideoDataLoader();
     loader.getPageListDataOneByOneFunction((dataModels) {
       setState(() {
         superPlayerModelList = dataModels;
       });
     });
-    WidgetsBinding.instance.addObserver(this);
   }
 
   @override

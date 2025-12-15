@@ -27,13 +27,15 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   String? _liteAVSdkVersion = 'Unknown';
+  final int MAX_LICENSE_RETRY_COUNT = 5;
+  int licenseRetryCount = 0;
   GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
     super.initState();
-    initPlatformState();
     initPlayerLicense();
+    initPlatformState();
     _getFlutterSdkVersion();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     LogUtils.logOpen = true;
@@ -48,8 +50,29 @@ class _MyAppState extends State<MyApp> {
       }
     });
     await SuperPlayerPlugin.setGlobalLicense(LICENSE_URL, LICENSE_KEY);
+    retryConfigLicense();
     // enable flexible license valid
     SuperPlayerPlugin.setLicenseFlexibleValid(true);
+  }
+
+  Future<void> retryConfigLicense() async {
+    try {
+      final result = await isLicenseSuc.future.timeout(const Duration(seconds: 5));
+      if (result == true) {
+        print("License already completed, exit retry");
+        return;
+      }
+    } on TimeoutException {
+      print("Timeout occurred, attempt retry $licenseRetryCount");
+    }
+    licenseRetryCount++;
+    if (licenseRetryCount > MAX_LICENSE_RETRY_COUNT) {
+      print("license retry times reached max count,cur:$licenseRetryCount");
+    } else {
+      print("start license retry:$licenseRetryCount");
+      await SuperPlayerPlugin.setGlobalLicense(LICENSE_URL, LICENSE_KEY);
+      retryConfigLicense();
+    }
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -90,7 +113,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       localizationsDelegates: [
         AppLocalizationDelegate.delegate,
-        SuperPlayerWidgetLocals.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
