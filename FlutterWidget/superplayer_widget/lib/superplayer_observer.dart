@@ -25,7 +25,7 @@ class _SuperPlayerObserver {
   Function(List<TXTrackInfo>? audioTrackList, TXTrackInfo? selectedTrack) onAudioTrackListChange;
   Function(List<TXTrackInfo>? subtitleTrackList, TXTrackInfo? selectedTrack) onSubtitleTrackListChange;
   Function(TXVodSubtitleData?) onSubtitleData;
-  Function(bool visible) onShowControlView;
+  Function(bool onlyBasic) onOnlyShowBasicUI;
 
   _SuperPlayerObserver(
       this.onPreparePlayVideo,
@@ -51,6 +51,6 @@ class _SuperPlayerObserver {
       this.onAudioTrackListChange,
       this.onSubtitleTrackListChange,
       this.onSubtitleData,
-      this.onShowControlView,
+      this.onOnlyShowBasicUI,
       this.onDispose,);
 }

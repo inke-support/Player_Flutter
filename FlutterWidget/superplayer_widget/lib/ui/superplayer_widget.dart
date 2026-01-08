@@ -8,10 +8,16 @@ int manualOrientationDirection = TXVodPlayEvent.ORIENTATION_LANDSCAPE_RIGHT;
 class SuperPlayerView extends StatefulWidget {
   final SuperPlayerController _controller;
   final SuperPlayerRenderMode renderMode;
+  final bool resizeToAvoidBottomInset;
+  final bool isOnlyShowBasicUI;
   LocalizationsDelegate<dynamic>? customLocalDelegate;
 
   SuperPlayerView(this._controller,
-      {Key? viewKey, this.renderMode = SuperPlayerRenderMode.ADJUST_RESOLUTION, this.customLocalDelegate})
+      {Key? viewKey,
+      this.renderMode = SuperPlayerRenderMode.ADJUST_RESOLUTION,
+      this.resizeToAvoidBottomInset = true,
+      this.isOnlyShowBasicUI = false,
+      this.customLocalDelegate})
       : super(key: viewKey);
 
   @override
@@ -34,6 +40,7 @@ class SuperPlayerViewState extends State<SuperPlayerView> with WidgetsBindingObs
   bool _isDownloaded = false;
   bool _isShowSubtitleListView = false;
   bool _isShowAudioListView = false;
+  bool _isOnlyShowBasicUI = false; // 是否仅展示基本 UI（播放暂停、loading）
 
   late BottomViewController _bottomViewController;
   late QualityListViewController _qualitListViewController;
@@ -70,8 +77,10 @@ class SuperPlayerViewState extends State<SuperPlayerView> with WidgetsBindingObs
   @override
   void initState() {
     super.initState();
-    TXPipController.instance.exitAndReleaseCurrentPip();
     _playController = widget._controller;
+    _playController.resizeToAvoidBottomInset = widget.resizeToAvoidBottomInset;
+    _isOnlyShowBasicUI = widget.isOnlyShowBasicUI;
+    TXPipController.instance.exitAndReleaseCurrentPip();
     _currentUIStatus = _playController._playerUIStatus;
     _applyRenderMode();
     _titleViewController = _VideoTitleController(
@@ -165,8 +174,12 @@ class SuperPlayerViewState extends State<SuperPlayerView> with WidgetsBindingObs
   @override
   void didUpdateWidget(covariant SuperPlayerView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (_playController != oldWidget) {
+    if (widget.isOnlyShowBasicUI != oldWidget.isOnlyShowBasicUI) {
+      _isOnlyShowBasicUI = widget.isOnlyShowBasicUI;
+    }
+    if (_playController != widget._controller) {
       _playController = widget._controller;
+      _playController.resizeToAvoidBottomInset = widget.resizeToAvoidBottomInset;
       _applyRenderMode();
     } else if (widget.renderMode != oldWidget.renderMode) {
       _applyRenderMode();
@@ -279,13 +292,11 @@ class SuperPlayerViewState extends State<SuperPlayerView> with WidgetsBindingObs
       setState(() {
         _playController.currentSubtitleData = subtitleData;
       });
-    }, (visible) {
-      // onShowControlView
-      if (visible) {
-        showControlView(true);
-      } else {
-        hideControlView();
-      }
+    }, (onlyBasic) {
+      // onOnlyShowBasicUI
+      setState(() {
+        _isOnlyShowBasicUI = onlyBasic;
+      });
     }, () {
       // onDispose
       _playController._observer = null; // close observer
@@ -480,17 +491,17 @@ class SuperPlayerViewState extends State<SuperPlayerView> with WidgetsBindingObs
     return Stack(
       children: [
         _getPlayer(),
-        _getTitleArea(),
+        if (!_isOnlyShowBasicUI) _getTitleArea(),
         // _getPipEnterView(),
-        _getImageSpriteView(),
+        if (!_isOnlyShowBasicUI) _getImageSpriteView(),
         _getSubtitleDisplayView(),
         _getCover(),
-        _getBottomView(),
+        if (!_isOnlyShowBasicUI) _getBottomView(),
         _getStartOrResumeBtn(),
-        _getQualityListView(),
-        _getSubtitleListView(),
-        _getAudioListView(),
-        _getMoreMenuView(),
+        if (!_isOnlyShowBasicUI) _getQualityListView(),
+        if (!_isOnlyShowBasicUI) _getSubtitleListView(),
+        if (!_isOnlyShowBasicUI) _getAudioListView(),
+        if (!_isOnlyShowBasicUI) _getMoreMenuView(),
         _getLoading(),
       ],
     );
@@ -857,9 +868,8 @@ class SuperPlayerFullScreenView extends StatefulWidget {
   final SuperPlayerController _playController;
   final SuperPlayerFullScreenController controller;
   final SuperPlayerRenderMode renderMode;
-  final bool? resizeToAvoidBottomInset;
 
-  const SuperPlayerFullScreenView(this._playController, this.controller, this.renderMode, {Key? viewKey, this.resizeToAvoidBottomInset})
+  const SuperPlayerFullScreenView(this._playController, this.controller, this.renderMode, {Key? viewKey})
       : super(key: viewKey);
 
   @override
@@ -883,7 +893,7 @@ class SuperPlayerFullScreenState extends State<SuperPlayerFullScreenView> {
             removeLeft: true,
             removeRight: true,
             child: Scaffold(
-              resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
+              resizeToAvoidBottomInset: widget._playController.resizeToAvoidBottomInset,
               body: Container(
                   decoration: const BoxDecoration(color: Colors.black),
                   width: double.infinity,

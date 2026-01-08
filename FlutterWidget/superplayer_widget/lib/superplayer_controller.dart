@@ -51,6 +51,7 @@ class SuperPlayerController {
   bool _isMultiBitrateStream = true; // the flag playing multi-bitrate URLs flag
   bool _changeHWAcceleration = false; // the flag before receiving the first keyframe after switching to hardware decoding
   bool _isOpenHWAcceleration = true;
+  bool resizeToAvoidBottomInset = true;
   int _playerUIStatus = SuperPlayerUIStatus.WINDOW_MODE;
   final BuildContext _context;
   FullScreenController fullScreenController = FullScreenController();
@@ -672,10 +673,10 @@ class SuperPlayerController {
     }
   }
 
-  /// 外部手动控制控制栏的显示/隐藏
-  /// [visible] true: 显示，false: 隐藏
-  void showControlView(bool visible) {
-    _observer?.onShowControlView(visible);
+  /// 设置是否仅展示基本 UI（播放暂停、loading）
+  /// [onlyBasic] true: 仅展示基本 UI，false: 展示全部 UI
+  void setOnlyShowBasicUI(bool onlyBasic) {
+    _observer?.onOnlyShowBasicUI(onlyBasic);
   }
 
   /// whether it is the webrtc protocol
