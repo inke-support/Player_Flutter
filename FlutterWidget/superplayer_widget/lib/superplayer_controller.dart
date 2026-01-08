@@ -672,6 +672,12 @@ class SuperPlayerController {
     }
   }
 
+  /// 外部手动控制控制栏的显示/隐藏
+  /// [visible] true: 显示，false: 隐藏
+  void showControlView(bool visible) {
+    _observer?.onShowControlView(visible);
+  }
+
   /// whether it is the webrtc protocol
   /// 是否是webrtc协议
   bool _isWebRtcPlay(String? videoURL) {

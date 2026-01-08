@@ -279,6 +279,13 @@ class SuperPlayerViewState extends State<SuperPlayerView> with WidgetsBindingObs
       setState(() {
         _playController.currentSubtitleData = subtitleData;
       });
+    }, (visible) {
+      // onShowControlView
+      if (visible) {
+        showControlView(true);
+      } else {
+        hideControlView();
+      }
     }, () {
       // onDispose
       _playController._observer = null; // close observer
@@ -850,8 +857,10 @@ class SuperPlayerFullScreenView extends StatefulWidget {
   final SuperPlayerController _playController;
   final SuperPlayerFullScreenController controller;
   final SuperPlayerRenderMode renderMode;
+  final bool? resizeToAvoidBottomInset;
 
-  const SuperPlayerFullScreenView(this._playController, this.controller, this.renderMode, {Key? viewKey}) : super(key: viewKey);
+  const SuperPlayerFullScreenView(this._playController, this.controller, this.renderMode, {Key? viewKey, this.resizeToAvoidBottomInset})
+      : super(key: viewKey);
 
   @override
   State<StatefulWidget> createState() => SuperPlayerFullScreenState();
@@ -874,6 +883,7 @@ class SuperPlayerFullScreenState extends State<SuperPlayerFullScreenView> {
             removeLeft: true,
             removeRight: true,
             child: Scaffold(
+              resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
               body: Container(
                   decoration: const BoxDecoration(color: Colors.black),
                   width: double.infinity,
