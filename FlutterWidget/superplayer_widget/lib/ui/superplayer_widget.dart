@@ -464,6 +464,7 @@ class SuperPlayerViewState extends State<SuperPlayerView> with WidgetsBindingObs
         widget.customLocalDelegate ?? SuperPlayerWidgetLocals.delegate
       ],
       child: Scaffold(
+        resizeToAvoidBottomInset: widget.resizeToAvoidBottomInset,
         body: SafeArea(
             left: false,
             right: false,
